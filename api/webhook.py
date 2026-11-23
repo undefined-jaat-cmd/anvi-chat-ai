@@ -24,13 +24,14 @@ def send_message(chat_id, message):
     req = urllib.request.Request(url, data=data)
     urllib.request.urlopen(req, timeout=20)
 
+
+import urllib.error
+
 def ask_gemini(message):
     payload = {
         "system_instruction": {
             "parts": [{
-                "text": "You are a friendly AI assistant. "
-                        "Reply naturally in the user's language. "
-                        "Use Hinglish when the user uses Hinglish."
+                "text": "You are ANVI Chat AI. Reply naturally in Hinglish or English."
             }]
         },
         "contents": [{
@@ -39,15 +40,25 @@ def ask_gemini(message):
     }
 
     req = urllib.request.Request(
-        f"{API_URL}?key={GEMINI_KEY}",
+        API_URL,
         data=json.dumps(payload).encode(),
-        headers={"Content-Type": "application/json"}
+        headers={
+            "Content-Type": "application/json",
+            "x-goog-api-key": GEMINI_KEY
+        }
     )
 
-    with urllib.request.urlopen(req, timeout=40) as response:
-        result = json.loads(response.read())
+    try:
+        with urllib.request.urlopen(req, timeout=40) as response:
+            result = json.loads(response.read())
 
-    return result["candidates"][0]["content"]["parts"][0]["text"]
+        return result["candidates"][0]["content"]["parts"][0]["text"]
+
+    except urllib.error.HTTPError as error:
+        details = error.read().decode("utf-8", errors="replace")
+        raise RuntimeError(
+            f"Gemini HTTP {error.code}: {details}"
+        )
 
 class handler(BaseHTTPRequestHandler):
 
