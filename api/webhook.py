@@ -10,7 +10,7 @@ GEMINI_KEY = os.environ.get("GEMINI_API_KEY")
 
 API_URL = (
     "https://generativelanguage.googleapis.com/v1beta/"
-    "models/gemini-2.5-flash:generateContent"
+    "models/gemini-3.5-flash-lite:generateContent"
 )
 
 def send_message(chat_id, message):
